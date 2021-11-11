@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assignment_4</title>
+  </head>
+  <body>
+    <h1>Runners registration</h1>
+
+    <label>Name</label> <input type="text" id="Namebox" /> 
+    <label>Runner Number</label> <input type="text" id="Numbox" />
+
+    <hr>
+
+    <!-- Buttons -->
+<button id="InsertBtn">INSERT</button>
+<button id="SelectBtn">SELECT</button>
+<button id="UpdateBtn">UPDATE</button>
+<button id="DeleteBtn">DELETE</button>
+
+<p>Most recent inserted runner is put below. To test, Insert a runners name and a random number. This app retreives off of the runner number
+    for retrivial, insert the number of a person you have put in and then press select. The name of the runner should come up. To update,
+    put in the number and a new name. This will update the which can be confirmed by reselecting the number. To Delte, input the number and 
+    delete. 
+</p>
+
+<div id="name">Name</div>
+<div id="number">Number</div>
+
+<!-- firebase import script -->
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCPBkvcy3WVpcv5xdRQuWDvjCXrtZ2APXc",
+      authDomain: "assignment4-3f218.firebaseapp.com",
+      projectId: "assignment4-3f218",
+      storageBucket: "assignment4-3f218.appspot.com",
+      messagingSenderId: "157226892174",
+      appId: "1:157226892174:web:b22a8fe5dd8edb540082df"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+    import { 
+        getFirestore, collection, getDoc, setDoc, addDoc, doc, deleteDoc, query, where, updateDoc 
+    } 
+    from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+
+    const db = getFirestore();
+
+    // variables for each input value
+
+    let Namebox = document.getElementById("Namebox");
+    let runnerNum = document.getElementById("Numbox");
+
+
+    let InsertBtn = document.getElementById("InsertBtn");
+    let SelectBtn = document.getElementById("SelectBtn");
+    let UpdateBtn = document.getElementById("UpdateBtn");
+    let DeleteBtn = document.getElementById("DeleteBtn");
+
+
+
+    // Insert/add 
+    async function AddDocument() {
+        var ref = doc(db, "RunnersList", runnerNum.value);
+
+        await setDoc(
+            ref, {
+                NameofRunner: Namebox.value,
+                RunnerNumber: runnerNum.value
+            }
+        )
+        .then(()=>{
+            alert("data added successfully");
+            console.log(Namebox.value);
+            document.getElementById("name").innerHTML = Namebox.value;
+            document.getElementById("number").innerHTML= runnerNum.value;
+        })
+        .catch((error) => {
+            alert("Unsuccessuful operation, error:" + error);
+        });
+        
+    }
+
+  
+
+    // getting/reading
+
+    async function GetDocument() {
+        var ref = doc(db, "RunnersList", runnerNum.value);
+        const docSnap = await getDoc(ref);
+
+        if(docSnap.exists()) {
+            Namebox.value = docSnap.data().NameofRunner;
+            
+          
+        }
+
+        else {
+            alert("No such document");
+        }
+    }
+
+    // update
+
+    async function UpdateFeilds() {
+        var ref = doc(db, "RunnersList", runnerNum.value);
+
+        await updateDoc(
+            ref, {
+                NameofRunner: Namebox.value,
+                
+            }
+        )
+        .then(()=>{
+            alert("data updated successfully");
+        })
+        .catch((error) => {
+            alert("Unsuccessuful operation, error:" + error);
+        });
+    }
+
+    // Delete
+
+    async function DeleteDocument() {
+        var ref = doc(db, "RunnersList", runnerNum.value);
+        const docSnap = await getDoc(ref);
+
+        if(!docSnap.exists()) {
+            alert("Document does not exist");
+            return;
+        }
+
+        await deleteDoc(ref)
+        .then(() =>{
+            alert("data deleted successfully");
+        })
+        .catch((error) => {
+            alert("unsuccessful operation, error: " + error);
+        });
+    }
+
+
+
+    // Buttons
+
+    InsertBtn.addEventListener("click", AddDocument);
+    SelectBtn.addEventListener("click", GetDocument);
+    UpdateBtn.addEventListener("click", UpdateFeilds);
+    DeleteBtn.addEventListener("click", DeleteDocument);
+
+    
+
+  </script>
+
+  </body>
+</html>
+
+
